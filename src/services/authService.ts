@@ -28,3 +28,9 @@ export const loginUser = async (email: string, password: string) => {
     }
     return {user, token:generateToken(user)};
 };
+
+
+export const getUsers = async () => {
+    const users = await User.find({}).select("-password");
+    return users;
+}

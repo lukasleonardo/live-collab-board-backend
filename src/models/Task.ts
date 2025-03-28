@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+
 export interface ITask extends Document {
     title: string;
     description: string;
@@ -10,6 +11,7 @@ export interface ITask extends Document {
     assignees: mongoose.Schema.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
+    addAssigneeToTask: (userId: string) => Promise<ITask>;
   }
 
 const TaskSchema: Schema = new Schema(
@@ -20,9 +22,10 @@ const TaskSchema: Schema = new Schema(
         board: { type: Schema.Types.ObjectId, ref: "Board", required: true },
         user: { type: Schema.Types.ObjectId, ref: "User", required: true },
         status: { type: String, enum: ["todo", "in-progress", "done"], default: "todo" },
-        assignees: [{ type: Schema.Types.ObjectId, ref: "User" ,default:[]}],
+        assignees: [{ type: Schema.Types.ObjectId, ref: "User" }],default:[],
         createdAt:{type:Date, default:Date.now},
         updatedAt:{type:Date, default:Date.now}
+        
     },
     { timestamps: true }
 )
@@ -37,6 +40,15 @@ TaskSchema.pre("save", function (next) {
     next();
   });
 
+  TaskSchema.methods.addAssigneeToTask = async function (userId: string) {
+    // Verificar se o assignee já está presente no array
+    if (this.assignees.includes(userId)) {
+      throw new Error("Este usuário já é um assignee desta tarefa.");
+    }
+    this.assignees.push(userId);
+    await this.save();
+    return this;
+  };
 
 
 export default mongoose.model<ITask>("Task", TaskSchema);

@@ -14,7 +14,8 @@ export const create = async (req: AuthenticatedRequest, res: Response) => {
 
 export const listByUser = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const tasks = await getTasks(req);
+        const id = req.body.id
+        const tasks = await getTasks(id);
         res.status(200).json(tasks);
     } catch (error:any) {
         res.status(400).json({ error: error.message });
@@ -50,7 +51,9 @@ export const removeTask = async (req: AuthenticatedRequest, res: Response) => {
 
 export const assignToTask= async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const task = await addAssignee(req.params.id, req.body.userId);    
+        const taskId = req.params.id
+        const userId = req.body.id
+        const task = await addAssignee(taskId,userId);    
         res.status(200).json(task);
     } catch (error:any) {
         res.status(400).json({ error: error.message });

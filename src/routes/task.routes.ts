@@ -6,7 +6,7 @@ import { create, listByUser, listByBoard, update, removeTask, assignToTask } fro
 const router = express.Router();
 
 router.post("/", protect, create); // Criar tarefa
-router.post("/user", protect, assignToTask);// ajustando!!
+router.post("/user/:id", protect, assignToTask);// ajustando!!
 router.get("/user", protect, listByUser); 
 router.get("/board/:boardId", protect, listByBoard); // Listar tarefas de um quadro
 router.put("/:id", protect, update); // Atualizar tarefa

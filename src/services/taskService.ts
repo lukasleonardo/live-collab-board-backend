@@ -21,11 +21,11 @@ export const createTask = async (req: AuthenticatedRequest) => {
     return task
 }
 
-export const getTasks = async (req: AuthenticatedRequest) => {
+export const getTasks = async (id:string) => {
     const tasks = await Task.find({ 
         $or: [
-            { user: req.user._id }, 
-            { assignees: req.user._id } 
+            { user: id }, 
+            { assignees: id} 
         ] 
     })
     .populate("assignees", "name email");
@@ -56,11 +56,10 @@ export const deleteTask = async (id: string) => {
 };
 
 export const addAssignee = async (taskId: string, userId: string) => {
-    const user =parseAssignees(userId);
     const task = await Task.findById(taskId);
     if (!task) throw new Error("Tarefa nao encontrada");
-    task.assignees.push(user);
-    await task.save();
-    // getIO().emit("task:update", task);
+    await task.addAssigneeToTask(userId);
+    //getIO().emit("task:update", task);  // Emitir evento via socket (se necessário)
+
     return task;
 }
