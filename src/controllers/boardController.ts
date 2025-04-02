@@ -40,7 +40,7 @@ export const update = async (req: AuthenticatedRequest, res: Response) => {
 
 export const remove = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const board = await deleteBoard(req.params.id, req.user._id);
+        const board = await deleteBoard(req);
         res.status(200).json(board);
     } catch (error:any) {
         res.status(400).json({ error: error.message });

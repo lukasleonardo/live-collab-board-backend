@@ -1,19 +1,39 @@
 import Board, { IBoard } from "../models/Board";
+import jwt from "jsonwebtoken";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
 
 export const createBoard = async (req: AuthenticatedRequest) => {
     const { title, description } = req.body;
+    const token = req.header('Authorization')?.split(' ')[1]??'';
     if(!title){
         throw new Error("O título é obrigatório");
+    }
+    if (!token) {
+        throw new Error("Token de autenticação ausente");
+    }
+    let  userId;
+    try{
+        const decoded:any = jwt.verify(token, process.env.JWT_SECRET as string);
+        userId = decoded.id
+    }catch(error){
+        throw new Error("Token de autenticação inválido" + error);
     }
 
     const board = await Board.create({ 
         title, 
         description, 
-        owner: req.user._id,
-        members: [req.user._id]});
+        owner: userId,
+        members: [userId]});
+    
+    const populatedBoard = await Board.findById(board._id)
+    .populate('owner', 'name')
+    .exec();
 
-    return board
+    if (!populatedBoard) {
+        throw new Error("Erro ao criar o board");
+    }
+    
+    return populatedBoard
 }
 
 export const getBoards = async (req: AuthenticatedRequest) => {
@@ -41,8 +61,10 @@ export const updateBoard = async (id: string, userId: string, updates: Partial<I
     return board;
 }
 
-export const deleteBoard = async (id: string, userId: string) =>{
-    const board = await Board.findOneAndDelete({id:id,owner:userId});
+export const deleteBoard = async (req: AuthenticatedRequest) =>{
+    const id = req.params.id;
+
+    const board = await Board.findOneAndDelete({_id:id});
     if(!board){
         throw new Error("Quadro não encontrado ou sem permissão para deletar");
     }

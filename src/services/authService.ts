@@ -22,8 +22,7 @@ export const registerUser = async (name: string, email: string, password: string
 
 export const loginUser = async (email: string, password: string) => {
     const user = await User.findOne({ email });
-
-    if (!user || await user.comparePassword(password)) {
+    if (!user || !(await user.comparePassword(password))) {
         throw new Error("Credenciais inválidas");
     }
     return {user, token:generateToken(user)};

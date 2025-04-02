@@ -1,9 +1,24 @@
 import Task, { ITask } from "../models/Task";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
 import { getIO } from "../sockets/index";
+import  jwt  from "jsonwebtoken";
 
 export const createTask = async (req: AuthenticatedRequest) => {
-    const { title, description, boardId, assignees  } = req.body;
+    const { title, description, boardId  } = req.body;
+    
+    const token = req.header('Authorization')?.split(' ')[1]??'';
+    if (!token) {
+        throw new Error("Token de autenticação ausente");
+    }
+    let  userId;
+    try{
+        const decoded:any = jwt.verify(token, process.env.JWT_SECRET as string);
+        userId = decoded.id
+    }catch(error){
+        throw new Error("Token de autenticação inválido" + error);
+    }
+
+
     const slug = title.replace(/\s+/g, '-').toLowerCase();
     
     if(!title||!boardId){
@@ -13,10 +28,11 @@ export const createTask = async (req: AuthenticatedRequest) => {
         title, 
         description, 
         user: req.user._id,
-        assignees:[...(assignees || []), req.user._id],
+        assignees:[userId],
         board: boardId,
         slug 
     });
+    
     getIO().emit("task:create", task);
     return task
 }
