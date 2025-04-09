@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
 
 export const createBoard = async (req: AuthenticatedRequest) => {
-    const { title, description } = req.body;
+    const { title, description, members } = req.body;
     const token = req.header('Authorization')?.split(' ')[1]??'';
     if(!title){
         throw new Error("O título é obrigatório");
@@ -23,7 +23,8 @@ export const createBoard = async (req: AuthenticatedRequest) => {
         title, 
         description, 
         owner: userId,
-        members: [userId]});
+        members: [userId,...members]},  
+    );
     
     const populatedBoard = await Board.findById(board._id)
     .populate('owner', 'name')

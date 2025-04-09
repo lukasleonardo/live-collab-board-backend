@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
+import {  Response } from "express";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
-import { createTask, deleteTask, updateTask, addAssignee, getTaskByBoard, getTasksByUser, updateTaskStatus, updateCardsInBatch } from "../services/taskService";
+import { createTask, deleteTask, updateTask, addAssignee, getTaskByBoard, getTasksByUser, reorderTasks } from "../services/taskService";
 
 
 export const create = async (req: AuthenticatedRequest, res: Response) => {
@@ -60,23 +60,13 @@ export const assignToTask= async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-export const changeTaskStatus = async (req: AuthenticatedRequest, res: Response) => {
+export const organizeTasks = async (req: AuthenticatedRequest, res: Response) => {
     try {
-        const taskId = req.params.id
-        const status = req.body.status
-        const task = await updateTaskStatus(taskId,status); 
+        const tasks = req.body.tasks
+        const task = await reorderTasks(tasks); 
         res.status(200).json(task);
     } catch (error:any) {
         res.status(400).json({ error: error.message });
     }
 }
 
-export const updateTasksinBatch = async (req: AuthenticatedRequest, res: Response) => {
-    try {
-        const tasks = req.body.tasks
-        const task = await updateCardsInBatch(tasks); 
-        res.status(200).json(task);
-    } catch (error:any) {
-        res.status(400).json({ error: error.message });
-    }
-}

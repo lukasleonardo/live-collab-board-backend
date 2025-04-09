@@ -4,8 +4,11 @@ import { getIO } from "../sockets/index";
 import  jwt  from "jsonwebtoken";
 
 export const createTask = async (req: AuthenticatedRequest) => {
-    const { title, description, boardId, status  } = req.body;    
+    const { title, description, boardId, status,laneId,assignees } = req.body;    
     const token = req.header('Authorization')?.split(' ')[1]??'';
+    const lastCard = await Task.findOne({ laneId }).sort({ order: -1 }).lean();
+    const newOrder = lastCard ? lastCard.order + 1 : 1;
+
     if (!token) {
         throw new Error("Token de autenticação ausente");
     }
@@ -24,9 +27,10 @@ export const createTask = async (req: AuthenticatedRequest) => {
         title, 
         description, 
         user: userId,
-        assignees:[userId],
+        assignees:[userId,...assignees],
         board: boardId,
-        status,
+        order:newOrder,
+        laneId,
         slug 
     });    
     //getIO().emit("task:create", task);
@@ -79,35 +83,22 @@ export const addAssignee = async (taskId: string, userId: string) => {
     return task;
 }
 
-type taskStatus = "todo" | "inprogress" | "done";
-
-export const updateTaskStatus = async (taskId: string, status: taskStatus) => {
-    const task = await Task.findById(taskId);
-    if (!task) throw new Error("Tarefa nao encontrada");
-    if(!["todo", "inprogress", "done"].includes(status)){
-        throw new Error("Status inválido");
-    }
-    task.status = status;
-    await task.save();
-    //getIO().emit("task:update", task);  // Emitir evento via socket (se necesario)
-    return task;
-}
 
 type UpdateCard = {
     id: string;
     laneId: string;
     position: number;
   };
-  export const updateCardsInBatch = async (updates: UpdateCard[]) => {
-    const operations = updates.map(({ id, laneId, position }) => ({
+
+  export const reorderTasks = async (
+    updates: { id: string; laneId: string; order: number }[]
+  ): Promise<void> => {
+    const bulkOperations = updates.map(({ id, laneId, order }) => ({
       updateOne: {
         filter: { _id: id },
-        update: {
-          $set: { laneId, position },
-        },
+        update: { $set: { laneId, order } },
       },
     }));
   
-    const result = await Task.bulkWrite(operations);
-    return result;
+    await Task.bulkWrite(bulkOperations);
   };

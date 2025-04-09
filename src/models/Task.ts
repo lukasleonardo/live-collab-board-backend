@@ -1,17 +1,17 @@
 import mongoose, { Schema, Document } from "mongoose";
-
+import { UUIDTypes, v4 as uuidv4 } from 'uuid';
 
 export interface ITask extends Document {
     title: string;
     description: string;
     slug: string,
-    status: "todo" | "inprogress" | "done";
     board: mongoose.Schema.Types.ObjectId;
     user: mongoose.Schema.Types.ObjectId;
     assignees: mongoose.Schema.Types.ObjectId[];
     createdAt: Date;
     updatedAt: Date;
     order: number;
+    laneId: UUIDTypes;
     addAssigneeToTask: (userId: string) => Promise<ITask>;
   }
 
@@ -22,10 +22,11 @@ const TaskSchema: Schema = new Schema(
         slug: { type: String, unique: true },
         board: { type: Schema.Types.ObjectId, ref: "Board", required: true },
         user: { type: Schema.Types.ObjectId, ref: "User", required: true },
-        status: { type: String, enum: ["todo", "inprogress", "done"], default: "todo" },
         assignees: [{ type: Schema.Types.ObjectId, ref: "User" }],default:[],
         createdAt:{type:Date, default:Date.now},
-        updatedAt:{type:Date, default:Date.now}
+        updatedAt:{type:Date, default:Date.now},
+        order: { type: Number, default: 0 },
+        laneId: { type: String, required: true, default: uuidv4() },
         
     },
     { timestamps: true }
