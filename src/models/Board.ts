@@ -11,7 +11,6 @@ export interface IBoard extends Document {
     owner: mongoose.Schema.Types.ObjectId;
     members: mongoose.Schema.Types.ObjectId[];
     lane:{title:string, id:UUIDTypes}[]
-    updatedAt: Date;
 }
 
 const LaneSchema = new Schema<ILane>({
@@ -33,7 +32,6 @@ const BoardSchema: Schema = new Schema(
             ]
           },
         members: [{ type: Schema.Types.ObjectId, ref: "User" }],
-        updatedAt:{type:Date}
       },
       { timestamps: true }
 )

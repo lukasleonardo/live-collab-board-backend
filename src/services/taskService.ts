@@ -27,7 +27,7 @@ export const createTask = async (req: AuthenticatedRequest) => {
         title, 
         description, 
         user: userId,
-        assignees:[userId,...assignees],
+        assignees:[...assignees],
         board: boardId,
         order:newOrder,
         laneId,

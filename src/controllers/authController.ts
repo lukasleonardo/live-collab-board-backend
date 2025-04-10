@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { registerUser, loginUser, getUsers } from "../services/authService";
+import { AuthenticatedRequest } from "../middleware/authMiddleware";
 
 export const register = async (req: Request, res: Response) => {
     try {
@@ -21,7 +22,7 @@ export const login = async (req: Request, res: Response) => {
     }
 };
 
-export const listUsers = async (req: Request, res: Response) => {
+export const listUsers = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const users = await getUsers();
         res.status(200).json(users);
