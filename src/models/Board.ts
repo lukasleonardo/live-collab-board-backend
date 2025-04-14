@@ -2,7 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 import { UUIDTypes, v4 as uuidv4 } from 'uuid';
 export interface ILane {
     title: string;
-    id: number;
+    id: String;
   }
 
 export interface IBoard extends Document {
@@ -15,7 +15,7 @@ export interface IBoard extends Document {
 
 const LaneSchema = new Schema<ILane>({
     title: { type: String, required: true },
-    id: { type: Number, required: true },
+    id: { type: String, required: true },
   });
 
 const BoardSchema: Schema = new Schema(

@@ -27,23 +27,23 @@ export const createBoard = async (req: AuthenticatedRequest) => {
     );
     
     const populatedBoard = await Board.findById(board._id)
-    .populate('owner', 'name')
+    .populate('owner', 'name').populate('members', '_id name email')
     .exec();
 
     if (!populatedBoard) {
         throw new Error("Erro ao criar o board");
     }
-    
+    console.log(populatedBoard);
     return populatedBoard
 }
 
 export const getBoards = async (req: AuthenticatedRequest) => {
-    const boards = await Board.find({ members: req.user._id }).populate("owner", "name email");;
+    const boards = await Board.find({ members: req.user._id }).populate("owner", "name email").populate("members", "_id name email");;
     return boards;
 }
 
 export const getBoardById = async (id: string, userId: string) => {
-    const board = await Board.findById({_id:id,members:userId}).populate("owner", "name email");
+    const board = await Board.findById({_id:id,members:userId}).populate("owner", "name email").populate("members", "_id name email");
     if(!board){
         throw new Error("Quadro não encontrado");
     }

@@ -63,6 +63,7 @@ export const assignToTask= async (req: AuthenticatedRequest, res: Response) => {
 export const organizeTasks = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const tasks = req.body.tasks
+        console.log(tasks);
         const task = await reorderTasks(tasks); 
         res.status(200).json(task);
     } catch (error:any) {
