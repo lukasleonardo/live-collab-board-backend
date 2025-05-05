@@ -33,7 +33,6 @@ export const createBoard = async (req: AuthenticatedRequest) => {
     if (!populatedBoard) {
         throw new Error("Erro ao criar o board");
     }
-    console.log(populatedBoard);
     return populatedBoard
 }
 
@@ -51,10 +50,11 @@ export const getBoardById = async (id: string, userId: string) => {
 }
 
 export const updateBoard = async (id: string, userId: string, updates: Partial<IBoard>) => {
+    console.log("Tentando atualizar board:", { id, userId });
     const board = await Board.findOneAndUpdate({
-        id:id,
+        _id:id,
         owner:userId,  
-    },{updates},{new:true});
+    },updates,{new:true});
 
     if(!board){
         throw new Error("Quadro não encontrado ou sem permissão para editar");

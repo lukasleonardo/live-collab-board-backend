@@ -1,6 +1,5 @@
 import Task, { ITask } from "../models/Task";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
-import { getIO } from "../sockets/index";
 import  jwt  from "jsonwebtoken";
 
 export const createTask = async (req: AuthenticatedRequest) => {
@@ -33,7 +32,7 @@ export const createTask = async (req: AuthenticatedRequest) => {
         laneId,
         slug 
     });    
-    //getIO().emit("task:create", task);
+    
     return task
 }
 
@@ -50,7 +49,6 @@ export const getTasksByUser = async (id:string) => {
 
 export const getTaskByBoard = async (req: AuthenticatedRequest) => {
     const id = req.params.boardId
-    //console.log(id);
     const task = await Task.find({board:id}).populate("members", "_id name email");
     if (!task) throw new Error("Tarefa não encontrada");
     return task;
@@ -60,17 +58,16 @@ export const updateTask = async (id: string, updates: Partial<ITask>) => {
     const task = await Task.findByIdAndUpdate(id, updates, { new: true })
     .populate("members", "_id name email");;
     if (!task) throw new Error("Tarefa não encontrada");
-    //getIO().emit("task:update", task);
+    ;
     return task;
 }
 
 
 export const deleteTask = async (req: AuthenticatedRequest) => {
     const id = req.params.id
-    //console.log(id);
     const task = await Task.findByIdAndDelete(id);
     if (!task) throw new Error("Tarefa não encontrada");
-    //getIO().emit("task:delete", {id});
+    
     return { message: "Tarefa deletada com sucesso" };
 };
 
@@ -78,7 +75,6 @@ export const addAssignee = async (taskId: string, userId: string) => {
     const task = await Task.findById(taskId);
     if (!task) throw new Error("Tarefa nao encontrada");
     await task.addAssigneeToTask(userId);
-    //getIO().emit("task:update", task);  // Emitir evento via socket (se necessário)
 
     return task;
 }
@@ -104,7 +100,7 @@ type UpdateCard = {
         // Executa as operações de bulkWrite
         const result = await Task.bulkWrite(bulkOperations);
     
-        // Verifica o número de documentos modificados
+        // Checa se todas as tarefas foram atualizadas
         if (result.modifiedCount === updates.length) {
           console.log('Todas as tarefas foram atualizadas com sucesso');
         } else {
@@ -116,3 +112,10 @@ type UpdateCard = {
         throw new Error('Erro ao realizar a reordenação das tarefas');
       }
   };
+
+
+  export const findTaskById = async (id: string) => {
+    const task = await Task.findById(id).populate("members", "_id name email");
+    if (!task) throw new Error("Tarefa nao encontrada");
+    return task;
+  }

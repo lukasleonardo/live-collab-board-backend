@@ -1,6 +1,6 @@
 import {  Response } from "express";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
-import { createTask, deleteTask, updateTask, addAssignee, getTaskByBoard, getTasksByUser, reorderTasks } from "../services/taskService";
+import { createTask, deleteTask, updateTask, addAssignee, getTaskByBoard, getTasksByUser, reorderTasks, findTaskById } from "../services/taskService";
 
 
 export const create = async (req: AuthenticatedRequest, res: Response) => {
@@ -49,16 +49,6 @@ export const removeTask = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-export const assignToTask= async (req: AuthenticatedRequest, res: Response) => {
-    try {
-        const taskId = req.params.id
-        const userId = req.body.id
-        const task = await addAssignee(taskId,userId);    
-        res.status(200).json(task);
-    } catch (error:any) {
-        res.status(400).json({ error: error.message });
-    }
-};
 
 export const organizeTasks = async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -71,3 +61,12 @@ export const organizeTasks = async (req: AuthenticatedRequest, res: Response) =>
     }
 }
 
+export const getTaskById = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const id = req.params.id
+        const task = await findTaskById(id);    
+        res.status(200).json(task);
+    } catch (error:any) {
+        res.status(400).json({ error: error.message });
+    }
+}

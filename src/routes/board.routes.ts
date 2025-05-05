@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/", protect, create); // Criar quadro
 router.get("/", protect, listBoards); // Listar quadros do usuário
 router.get("/:id", protect, getOne); // Obter um quadro específico
-router.put("/:id", protect, update); // Atualizar quadro
+router.patch("/:id", protect, update); // Atualizar quadro
 router.delete("/:id", protect, remove); // Deletar quadro
 
 export default router;

@@ -11,6 +11,7 @@ export interface ITask extends Document {
     order: number;
     laneId: UUIDTypes;
     addAssigneeToTask: (userId: string) => Promise<ITask>;
+
   }
 
 const TaskSchema: Schema = new Schema(
@@ -36,16 +37,6 @@ TaskSchema.pre("save", function (next) {
     }
     next();
   });
-
-  TaskSchema.methods.addMembersToTask = async function (userId: string) {
-    // Verificar se o assignee já está presente no array
-    if (this.members.includes(userId)) {
-      throw new Error("Este usuário já é um assignee desta tarefa.");
-    }
-    this.members.push(userId);
-    await this.save();
-    return this;
-  };
 
 
 export default mongoose.model<ITask>("Task", TaskSchema);
