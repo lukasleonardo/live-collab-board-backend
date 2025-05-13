@@ -16,12 +16,18 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, { 
     cors: { 
         origin: "http://localhost:5173",
-        methods: ["GET", "POST","PATCH","DELETE"] 
+        methods: ["GET", "POST","PATCH","DELETE"],
+        credentials: true,
+        allowedHeaders: ["Content-Type"], 
     } });
 registerSocketHandlers(io);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST","PATCH","DELETE"],
+  credentials: true,
+}));
 app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/boards", boardRoutes);

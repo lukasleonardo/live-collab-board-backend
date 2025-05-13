@@ -1,5 +1,6 @@
 import { Server, Socket } from "socket.io";
 
+//  ESTOU EMITINDO O BOARD ID NO FRONTEND?
 
 export const registerTaskHandlers = (io: Server, socket: Socket) => {
   socket.on("task:create", ({task, boardId}) => {
@@ -14,8 +15,8 @@ export const registerTaskHandlers = (io: Server, socket: Socket) => {
     io.to(boardId).emit("task:deleted", {taskId, boardId});
   });
 
-  socket.on("task:reorder", ({task}) => {
-    io.to(task.boardId).emit("task:reordered", {task, boardId: task.boardId});
+  socket.on("task:reorder", ({tasks,boardId}) => {
+    io.to(boardId).emit("task:reordered", {updatedTasks:tasks, boardId});
   });
 
 };
