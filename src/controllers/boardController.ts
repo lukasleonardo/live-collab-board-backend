@@ -1,6 +1,7 @@
-import {Request, Response} from "express";
-import {createBoard, getBoards, getBoardById, deleteBoard, updateBoard} from "../services/boardService";
+import {Request, RequestHandler, Response} from "express";
+import {createBoard, getBoards, getBoardById, deleteBoard, updateBoard, getBoardsWithTaskCount} from "../services/boardService";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
+import Board from "../models/Board";
 
 export const create = async (req: AuthenticatedRequest, res: Response) => {
     try {
@@ -46,3 +47,20 @@ export const remove = async (req: AuthenticatedRequest, res: Response) => {
         res.status(400).json({ error: error.message });
     }
 }
+
+
+
+export const fetchBoardsWithTaskCount = async (
+  req: AuthenticatedRequest,
+  res: Response
+) => {
+  try {
+    const boards = await getBoardsWithTaskCount();
+    res.status(200).json(boards);
+  } catch (err) {
+    console.error("Erro detectado:", err);
+    res.status(500).json({ error: "Erro interno do servidor" });
+  }
+};
+
+

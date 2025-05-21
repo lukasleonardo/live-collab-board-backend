@@ -9,6 +9,7 @@ export interface IBoard extends Document {
     title: string;
     description: string;
     owner: mongoose.Schema.Types.ObjectId;
+    isFavorite: boolean;
     members: mongoose.Schema.Types.ObjectId[];
     lane:{title:string, id:UUIDTypes}[]
 }
@@ -23,6 +24,10 @@ const BoardSchema: Schema = new Schema(
         title: { type: String, required: true },
         description: { type: String},
         owner: { type: Schema.Types.ObjectId, ref: "User", required: true },
+        isFavorite: {
+          type: Boolean,
+          default: false,
+        },
         lanes:{
             type: [LaneSchema],
             default: [

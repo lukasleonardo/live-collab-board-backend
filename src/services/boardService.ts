@@ -1,6 +1,7 @@
 import Board, { IBoard } from "../models/Board";
 import jwt from "jsonwebtoken";
 import { AuthenticatedRequest } from "../middleware/authMiddleware";
+import Task from "../models/Task";
 
 export const createBoard = async (req: AuthenticatedRequest) => {
     const { title, description, members } = req.body;
@@ -42,7 +43,7 @@ export const getBoards = async (req: AuthenticatedRequest) => {
 }
 
 export const getBoardById = async (id: string, userId: string) => {
-    const board = await Board.findById({_id:id,members:userId}).populate("owner", "name email").populate("members", "_id name email");
+    const board = await Board.findOne({_id:id,members:userId}).populate("owner", "name email").populate("members", "_id name email");
     if(!board){
         throw new Error("Quadro não encontrado");
     }
@@ -71,3 +72,21 @@ export const deleteBoard = async (req: AuthenticatedRequest) =>{
     }
     return {message:"Quadro deletado com sucesso"};
 }
+
+
+export const getBoardsWithTaskCount = async () => {
+  const boards = await Board.find().lean();
+
+  // Adiciona o taskCount a cada board
+  const boardsWithCount = await Promise.all(
+    boards.map(async (board) => {
+      const count = await Task.countDocuments({ board: board._id });
+      return {
+        ...board,
+        taskCount: count,
+      };
+    })
+  );
+
+  return boardsWithCount;
+};
