@@ -55,7 +55,7 @@ export const fetchBoardsWithTaskCount = async (
   res: Response
 ) => {
   try {
-    const boards = await getBoardsWithTaskCount();
+    const boards = await getBoardsWithTaskCount(req);
     res.status(200).json(boards);
   } catch (err) {
     console.error("Erro detectado:", err);

@@ -63,19 +63,25 @@ export const updateBoard = async (id: string, userId: string, updates: Partial<I
     return board;
 }
 
-export const deleteBoard = async (req: AuthenticatedRequest) =>{
-    const id = req.params.id;
+export const deleteBoard = async (req: AuthenticatedRequest) => {
+  const id = req.params.id;
+  const board = await Board.findById(id);
 
-    const board = await Board.findOneAndDelete({_id:id});
-    if(!board){
-        throw new Error("Quadro não encontrado ou sem permissão para deletar");
-    }
-    return {message:"Quadro deletado com sucesso"};
-}
+  if (!board) {
+    throw new Error("Quadro não encontrado");
+  }
+
+  if (board.owner.toString() !== req.user._id.toString()) {
+    throw new Error("Você não tem permissão para deletar este quadro");
+  }
+  await board.deleteOne();
+
+  return { message: "Quadro deletado com sucesso" };
+};
 
 
-export const getBoardsWithTaskCount = async () => {
-  const boards = await Board.find().lean();
+export const getBoardsWithTaskCount = async (req: AuthenticatedRequest) => {
+  const boards = await Board.find({ members: req.user._id }).lean();
 
   // Adiciona o taskCount a cada board
   const boardsWithCount = await Promise.all(
